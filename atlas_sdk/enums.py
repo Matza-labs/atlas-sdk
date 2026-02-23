@@ -77,6 +77,8 @@ class Platform(StrEnum):
     JENKINS = "jenkins"
     GITLAB = "gitlab"
     GITHUB_ACTIONS = "github_actions"
+    AZURE_DEVOPS = "azure_devops"
+    BITBUCKET = "bitbucket"
 
 
 class DocType(StrEnum):
