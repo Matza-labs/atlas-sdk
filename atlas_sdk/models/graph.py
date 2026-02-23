@@ -58,3 +58,45 @@ class CICDGraph(BaseModel):
     def get_edges_to(self, node_id: str) -> list[Edge]:
         """Get all edges pointing to a node."""
         return [e for e in self.edges if e.target_node_id == node_id]
+
+
+class CrossProjectEdge(BaseModel):
+    """An edge linking nodes across two different CICDGraphs."""
+
+    id: str = Field(default_factory=_new_id)
+    source_graph_id: str
+    source_node_id: str
+    target_graph_id: str
+    target_node_id: str
+    link_type: str  # "shared_artifact", "shared_secret", "shared_env", "cross_trigger"
+    confidence: float = 0.8
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class MultiProjectGraph(BaseModel):
+    """Container for multiple CICDGraphs with cross-project edges.
+
+    Enables detection and visualization of dependencies between
+    different projects/repositories.
+    """
+
+    id: str = Field(default_factory=_new_id)
+    name: str = "Multi-Project View"
+    graphs: list[CICDGraph] = Field(default_factory=list)
+    cross_edges: list[CrossProjectEdge] = Field(default_factory=list)
+    created_at: datetime = Field(default_factory=_now)
+
+    @property
+    def total_nodes(self) -> int:
+        return sum(len(g.nodes) for g in self.graphs)
+
+    @property
+    def total_edges(self) -> int:
+        return sum(len(g.edges) for g in self.graphs) + len(self.cross_edges)
+
+    def add_graph(self, graph: CICDGraph) -> None:
+        self.graphs.append(graph)
+
+    def add_cross_edge(self, edge: CrossProjectEdge) -> None:
+        self.cross_edges.append(edge)
+
