@@ -94,3 +94,34 @@ class ReportReadyEvent(BaseEvent):
     graph_id: str
     report_id: str
     formats: list[str] = Field(default_factory=lambda: ["markdown", "json"])
+
+
+class AITokenUsageEvent(BaseEvent):
+    """Emitted when an AI model completes a generation request to track billing.
+
+    Flow: atlas-ai → atlas-api
+    Stream: atlas.ai.usage
+    """
+
+    tenant_id: str
+    provider: str
+    model: str
+    tokens_used: int
+
+
+class LogAnalysisEvent(BaseEvent):
+    """Runtime insights extracted from CI build logs.
+
+    Flow: atlas-log-analyzer → atlas-graph
+    Stream: atlas.logs.analyzed
+    """
+
+    scan_request_id: str
+    total_patterns: int = 0
+    errors: int = 0
+    flaky_signals: int = 0
+    cache_hits: int = 0
+    cache_misses: int = 0
+    docker_steps: int = 0
+    duration_mentions: int = 0
+    patterns: list[dict[str, Any]] = Field(default_factory=list)
